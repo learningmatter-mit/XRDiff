@@ -1,0 +1,9 @@
+# Lattice pre-alignment variant. Identical to config.yaml except for the keys
+# below; results go to <run_dir>/rietveld_ranking/align/.
+base: config.yaml
+output_subdir: rietveld_ranking/align
+lattice_prealign:
+  range: [0.90, 1.10]      # isotropic scale factor f applied to a, b, c
+  coarse_step: 0.005
+  fine_step: 0.0005        # searched within +-coarse_step of the best coarse f
+  render_fwhm_deg: 0.15    # fixed Gaussian width used only to score f (not a refined profile)

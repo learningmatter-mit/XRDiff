@@ -1,0 +1,31 @@
+expname: diffcsp
+# runname: null
+wandb_dir: ${oc.env:WABDB_DIR}
+
+# metadata specialised for each experiment
+core:
+  version: 0.0.1
+  tags:
+    - ${now:%Y-%m-%d}
+
+hydra:
+  run:
+    dir: ${oc.env:HYDRA_JOBS}/singlerun/${expname}/${data.name}/${now:%Y-%m-%d_%H-%M-%S}/
+
+  sweep:
+    dir: ${oc.env:HYDRA_JOBS}/multirun/${expname}/${now:%Y-%m-%d_%H-%M-%S}
+    subdir: ${hydra.job.num}_${hydra.job.id}
+
+  job:
+    env_set:
+      WANDB_START_METHOD: thread
+      WANDB_DIR: ${oc.env:WABDB_DIR}
+
+defaults:
+  - data: default
+  - logging: default
+  - model: diffusion
+  - optim: default
+  - train: default
+#    Decomment this parameter to get parallel job running
+  # - override hydra/launcher: joblib

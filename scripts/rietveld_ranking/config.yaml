@@ -1,0 +1,45 @@
+# Every setting of the reference-free Rietveld ranking protocol lives here.
+# Fix these before looking at RRUFF results; do not tune on the evaluation set.
+
+seed: 42
+
+# Candidate sets, set per model by the config scripts/rruff_eval/rank20.sh writes:
+#   run_dirs:      {<variant>: <model dir>}
+#   gen_files:     {<k>: eval_diff_<dataset>_n_evals_<k>.pt}       candidates to rank
+#   metrics_files: {<k>: eval_metrics_<dataset>_n_evals_<k>.json}  coverage@k that must be reproduced
+run_dirs: {}
+gen_files: {}
+metrics_files: {}
+
+# Observed patterns: the measured RRUFF profiles the model was conditioned on
+# (min-max scaled RRUFF "Processed" XY, 0.01 deg step).
+observed_pt: data/rruff/test_pv_xrd.pt
+two_theta_min: 5.0
+two_theta_max: 90.0          # exclusive, as in the conditioning grid np.arange(5, 90, 0.01)
+two_theta_step: 0.01
+intensity_scale: 10000.0     # observed y (max 1) is multiplied by this before refinement
+weighting: unit              # w_i = 1 (esd = 1 for every point); raw counts are not available
+
+# Matching (identical to scripts/evaluation/compute_metrics.py defaults)
+matcher: {ltol: 0.2, stol: 0.3, angle_tol: 5}
+
+# Validity filter for ranking (independent of the matcher's own validity gate)
+min_interatomic_distance: 0.5   # Angstrom
+max_volume_per_atom: 1000.0     # Angstrom^3; above = runaway cell, invalid
+
+# Structure model
+symprec: 0.1
+uiso: 0.01                   # Angstrom^2, fixed for all atoms
+
+# Instrument (see instrument/generic_lab_CuKa.instprm)
+instprm: scripts/rietveld_ranking/instrument/generic_lab_CuKa.instprm
+
+# Refinement
+background_terms: 6          # shifted Chebyshev, fixed number of terms
+max_cycles_per_stage: 50     # least-squares cycles allowed within each stage's single refine call;
+                             # not reaching dM/M < 0.001 (GSAS-II 'min dM/M') within them = failure
+stuck_policy: continue       # GSAS-II 'stuck' (Ouch#4): keep best state, continue, record as stuck
+stages: [scale_background, zero, lattice, profile]
+po_stage: {axis: [0, 0, 1], ratio_start: 1.0}   # March-Dollase, sensitivity pass only
+timeout_s: 120               # CPU seconds per pass (main a-d; PO e separately), SIGPROF
+n_workers: 44                # xeon-p8 nodes have 48 cores

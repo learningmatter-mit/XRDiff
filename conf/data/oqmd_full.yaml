@@ -1,0 +1,90 @@
+name: oqmd_full
+root_path: ${oc.env:PROJECT_ROOT}/data/oqmd_full
+prop: e_form
+num_targets: 1
+niggli: true
+primitive: False
+graph_method: crystalnn
+lattice_scale_method: scale_length
+preprocess_workers: 30
+readout: mean
+max_atoms: 20
+otf_graph: false
+eval_model_name: oqmd_full
+tolerance: 0.1
+xrd_bins: 0.1 # 0.01 or 0.1
+xrd_type: full # peaks or full
+for_exp: false # set true to load rruff-filtered training set (_for_exp files)
+xrd_augmented: false # set true to load statically augmented training set (_aug files)
+
+use_space_group: false
+use_pos_index: false
+train_max_epochs: 1000
+early_stopping_patience: 100000
+teacher_forcing_max_epoch: 500
+
+
+datamodule:
+  _target_: diffcsp.pl_data.datamodule.CrystDataModule
+
+  datasets:
+    train:
+      _target_: diffcsp.pl_data.dataset.CrystDataset
+      name: Formation energy train
+      path: ${data.root_path}/train.csv
+      save_path: ${xrd_save_path:${data.xrd_type},${data.root_path},${data.xrd_bins},train,${data.for_exp},${data.xrd_augmented}}
+      prop: ${data.prop}
+      niggli: ${data.niggli}
+      primitive: ${data.primitive}
+      graph_method: ${data.graph_method}
+      tolerance: ${data.tolerance}
+      use_space_group: ${data.use_space_group}
+      use_pos_index: ${data.use_pos_index}
+      lattice_scale_method: ${data.lattice_scale_method}
+      preprocess_workers: ${data.preprocess_workers}
+      xrd_bins: ${data.xrd_bins}
+      xrd_type: ${data.xrd_type}
+
+    val:
+      - _target_: diffcsp.pl_data.dataset.CrystDataset
+        name: Formation energy val
+        path: ${data.root_path}/val.csv
+        save_path: ${xrd_save_path:${data.xrd_type},${data.root_path},${data.xrd_bins},val}
+        prop: ${data.prop}
+        niggli: ${data.niggli}
+        primitive: ${data.primitive}
+        graph_method: ${data.graph_method}
+        tolerance: ${data.tolerance}
+        use_space_group: ${data.use_space_group}
+        use_pos_index: ${data.use_pos_index}
+        lattice_scale_method: ${data.lattice_scale_method}
+        preprocess_workers: ${data.preprocess_workers}
+        xrd_bins: ${data.xrd_bins}
+        xrd_type: ${data.xrd_type}
+
+    test:
+      - _target_: diffcsp.pl_data.dataset.CrystDataset
+        name: Formation energy test
+        path: ${data.root_path}/test.csv
+        save_path: ${xrd_save_path:${data.xrd_type},${data.root_path},${data.xrd_bins},test}
+        prop: ${data.prop}
+        niggli: ${data.niggli}
+        primitive: ${data.primitive}
+        graph_method: ${data.graph_method}
+        tolerance: ${data.tolerance}
+        use_space_group: ${data.use_space_group}
+        use_pos_index: ${data.use_pos_index}
+        lattice_scale_method: ${data.lattice_scale_method}
+        preprocess_workers: ${data.preprocess_workers}
+        xrd_bins: ${data.xrd_bins}
+        xrd_type: ${data.xrd_type}
+
+  num_workers:
+    train: 0
+    val: 0
+    test: 0
+
+  batch_size:
+    train: 128
+    val: 128
+    test: 128

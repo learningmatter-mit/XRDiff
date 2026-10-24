@@ -1,0 +1,20 @@
+_target_: diffcsp.pl_modules.cspnet.CSPNet
+hidden_dim: 512
+latent_dim: 0
+max_atoms: 100
+num_layers: 6
+act_fn: silu
+dis_emb: sin
+num_freqs: 128
+edge_style: fc
+max_neighbors: ${model.max_neighbors}
+cutoff: ${model.radius}
+ln: true
+ip: true
+xrd_cond: true
+xrd_cond_type: film # film or concate
+film_mode: mp # 'mp' for every message passing layer, 'diff' for once per diffusion step (per forward call)
+xrd_bins: ${data.xrd_bins}
+xrd_type: ${data.xrd_type}
+note: None
+xrd_pretrain: false

@@ -1,0 +1,38 @@
+# reproducibility
+deterministic: True
+random_seed: 42
+
+# pretrained checkpoint (optional): path to .ckpt file or directory containing one
+# when set, loads model weights from checkpoint before training (e.g. for fine-tuning)
+pretrained_ckpt: null
+# continue from the checkpoint in hydra.run.dir (continuation jobs after a time limit)
+resume: false
+save_resume_ckpt: false
+
+# training
+
+pl_trainer:
+  fast_dev_run: False # Enable this for debug purposes
+  devices: 1
+  accelerator: 'gpu'
+  # accelerator: ddp
+  precision: 32
+  # max_steps: 10000
+  max_epochs: ${data.train_max_epochs}
+  accumulate_grad_batches: 1
+  num_sanity_val_steps: 2
+  gradient_clip_val: 0.5
+  gradient_clip_algorithm: value
+  profiler: simple
+
+monitor_metric: 'val_loss'
+monitor_metric_mode: 'min'
+
+early_stopping:
+  patience: ${data.early_stopping_patience} # 60
+  verbose: False
+
+model_checkpoints:
+  save_top_k: 1
+  verbose: False
+  save_last: False
